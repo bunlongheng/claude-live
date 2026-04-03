@@ -86,7 +86,7 @@ fn parse_assistant(obj: &Value, ts: String) -> Option<SessionEvent> {
         if kind == "thinking" {
             let text = block["thinking"].as_str().unwrap_or("").to_string();
             if !text.is_empty() {
-                return Some(SessionEvent::Thinking { text: truncate(text, 800), timestamp: ts });
+                return Some(SessionEvent::Thinking { text, timestamp: ts });
             }
         }
 
@@ -104,7 +104,7 @@ fn parse_assistant(obj: &Value, ts: String) -> Option<SessionEvent> {
                         timestamp:      ts.clone(),
                     };
                 }
-                return Some(SessionEvent::Text { text: truncate(text, 400), timestamp: ts });
+                return Some(SessionEvent::Text { text, timestamp: ts });
             }
         }
 
@@ -134,20 +134,17 @@ fn parse_assistant(obj: &Value, ts: String) -> Option<SessionEvent> {
 
 fn summarise_tool(name: &str, input: &Value) -> String {
     match name {
-        "Bash"      => truncate(input["command"].as_str().unwrap_or("").to_string(), 120),
-        "Read"      => tail_path(input["file_path"].as_str().unwrap_or("")),
-        "Edit"      => tail_path(input["file_path"].as_str().unwrap_or("")),
-        "Write"     => tail_path(input["file_path"].as_str().unwrap_or("")),
-        "Grep"      => format!("\"{}\"", truncate(input["pattern"].as_str().unwrap_or("").to_string(), 60)),
-        "Glob"      => truncate(input["pattern"].as_str().unwrap_or("").to_string(), 80),
-        "Agent"     => truncate(
-            input["description"].as_str()
+        "Bash"      => input["command"].as_str().unwrap_or("").to_string(),
+        "Read"      => input["file_path"].as_str().unwrap_or("").to_string(),
+        "Edit"      => input["file_path"].as_str().unwrap_or("").to_string(),
+        "Write"     => input["file_path"].as_str().unwrap_or("").to_string(),
+        "Grep"      => format!("\"{}\"  in  {}", input["pattern"].as_str().unwrap_or(""), input["path"].as_str().unwrap_or(".")),
+        "Glob"      => input["pattern"].as_str().unwrap_or("").to_string(),
+        "Agent"     => input["description"].as_str()
                 .or_else(|| input["prompt"].as_str())
                 .unwrap_or("")
                 .to_string(),
-            100,
-        ),
-        _           => truncate(input.to_string(), 100),
+        _           => input.to_string(),
     }
 }
 

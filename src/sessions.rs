@@ -52,6 +52,21 @@ fn project_name(folder: &str) -> String {
         .unwrap_or_else(|| folder.to_string())
 }
 
+pub fn get_session_cwd(claude_dir: &Path, session_id: &str) -> Option<String> {
+    let fp = find_session_file(claude_dir, session_id)?;
+    let content = std::fs::read_to_string(&fp).ok()?;
+    for line in content.lines().filter(|l| !l.is_empty()) {
+        if let Ok(obj) = serde_json::from_str::<serde_json::Value>(line) {
+            if obj["type"].as_str() == Some("user") {
+                if let Some(cwd) = obj["cwd"].as_str() {
+                    if !cwd.is_empty() { return Some(cwd.to_string()); }
+                }
+            }
+        }
+    }
+    None
+}
+
 pub fn find_session_file(claude_dir: &Path, session_id: &str) -> Option<PathBuf> {
     let rd = std::fs::read_dir(claude_dir).ok()?;
     for entry in rd.flatten() {

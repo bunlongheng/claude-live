@@ -1,5 +1,5 @@
 [package]
-name    = "claude-progress"
+name    = "claude-live"
 version = "0.1.0"
 edition = "2021"
 
@@ -17,6 +17,9 @@ serde_json       = "1"
 
 # File watching — kqueue on macOS, zero-cost when idle
 notify           = { version = "6",    features = ["macos_kqueue"] }
+
+# TTY input injection (TIOCSTI ioctl)
+libc             = "0.2"
 
 # Utilities
 anyhow           = "1"

@@ -53,11 +53,12 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         // REST
-        .route("/api/health",       get(api::health))
-        .route("/api/sessions",     get(api::list_sessions))
-        .route("/api/sessions/:id", get(api::get_session))
+        .route("/api/health",              get(api::health))
+        .route("/api/sessions",            get(api::list_sessions))
+        .route("/api/sessions/:id",        get(api::get_session))
+        .route("/api/sessions/:id/input",  axum::routing::post(api::session_input))
         // WebSocket  →  ws://localhost:PORT/ws/<session_id>
-        .route("/ws/:session_id",   get(ws::ws_handler))
+        .route("/ws/:session_id",          get(ws::ws_handler))
         .with_state(state)
         .layer(cors);
 

@@ -195,13 +195,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "claude-progress"
+name = "claude-live"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
  "chrono",
  "dotenv",
+ "libc",
  "notify",
  "reqwest",
  "serde",
