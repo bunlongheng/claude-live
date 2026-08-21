@@ -2,6 +2,9 @@
 
 # claude-live
 
+<p align="center"><img src="docs/hero.png" alt="claude-live" width="100%"></p>
+
+
 A Rust WebSocket server that tails your local Claude Code session files and streams the parsed conversation - thinking, tool calls, text, todos, token usage - live to any client, with optional Supabase sync and remote input injection back into the terminal.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -114,3 +117,9 @@ claude-live  http://0.0.0.0:7878
 ## License
 
 [MIT](LICENSE) (c) Bunlong Heng
+
+---
+
+<p align="center">
+  <sub>Built by <a href="https://bunlongheng.com">Bunlong Heng</a> &middot; <a href="https://bunlongheng.com/projects/claude-desktop">See it in my portfolio &rarr;</a></sub>
+</p>
