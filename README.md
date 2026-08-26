@@ -1,4 +1,14 @@
 <div align="center">
+  <img src="docs/icon.png" alt="Claude Remote Sessions" width="96" height="96" />
+  <h1>Claude Remote Sessions</h1>
+  <p><em>Streams live Claude Code sessions to any device over WebSocket</em></p>
+  <p><a href="https://github.com/bunlongheng/claude-live">Repo</a> &middot; <a href="https://bunlongheng.com/projects?name=claude-desktop">Portfolio</a></p>
+  <img src="docs/social-preview.png" alt="Claude Remote Sessions - preview" width="820" />
+</div>
+
+---
+
+<div align="center">
 
 # claude-live
 
