@@ -2,7 +2,6 @@ mod api;
 mod config;
 mod parser;
 mod sessions;
-mod supabase;
 mod ws;
 
 use std::sync::Arc;
@@ -26,23 +25,6 @@ async fn main() -> anyhow::Result<()> {
 
     let cfg = config::Config::from_env();
     let port = cfg.port;
-
-    // Optional: Supabase background sync every 5 minutes
-    if let Some(sb) = supabase::SupabaseClient::new(&cfg) {
-        let cfg_clone = cfg.clone();
-        tokio::spawn(async move {
-            let mut interval = tokio::time::interval(std::time::Duration::from_secs(300));
-            loop {
-                interval.tick().await;
-                let sessions = sessions::list_sessions(&cfg_clone);
-                if let Err(e) = sb.upsert_sessions(&sessions).await {
-                    tracing::warn!("Supabase sync failed: {e}");
-                } else {
-                    info!("Supabase: synced {} sessions", sessions.len());
-                }
-            }
-        });
-    }
 
     let state = Arc::new(AppState { cfg });
 

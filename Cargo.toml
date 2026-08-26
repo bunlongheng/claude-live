@@ -28,9 +28,6 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 chrono           = { version = "0.4",  features = ["serde"] }
 dotenv           = "0.15"
 
-# Supabase (optional — only compiles when SUPABASE_URL is in .env)
-reqwest          = { version = "0.12", features = ["json"] }
-
 [profile.release]
 opt-level     = 3
 lto           = true

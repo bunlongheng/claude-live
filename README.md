@@ -15,7 +15,7 @@
 <p align="center"><img src="docs/hero.png" alt="claude-live" width="100%"></p>
 
 
-A Rust WebSocket server that tails your local Claude Code session files and streams the parsed conversation - thinking, tool calls, text, todos, token usage - live to any client, with optional Supabase sync and remote input injection back into the terminal.
+A Rust WebSocket server that tails your local Claude Code session files and streams the parsed conversation - thinking, tool calls, text, todos, token usage - live to any client, with remote input injection back into the terminal.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Rust](https://img.shields.io/badge/Rust-2021-000000?logo=rust&logoColor=white)
@@ -33,7 +33,6 @@ A Rust WebSocket server that tails your local Claude Code session files and stre
 - **Typed event parsing** - raw JSONL lines are turned into `thinking`, `tool`, `text`, `user_msg`, `todos`, and `usage` events. Tool calls get a human-readable one-line summary (e.g. the command for `Bash`, the path for `Read`/`Edit`/`Write`, the pattern for `Grep`/`Glob`).
 - **REST snapshot API** - `/api/health`, `/api/sessions`, `/api/sessions/:id` for clients that just want a poll instead of a socket.
 - **Remote input injection** - `POST /api/sessions/:id/input` or a `{"type":"input","text":"..."}` WebSocket message locates the tty of the Claude process running in that session's cwd (via `pgrep` + `lsof` + `ps`) and types the text back into it through AppleScript: directly into iTerm2 with a bracketed-paste-safe two-step write, or by focusing VS Code's integrated terminal and driving System Events keystrokes as a fallback.
-- **Optional Supabase sync** - if `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` are set, a background task upserts every session's metadata (including token usage) to a `claude_sessions` table every 5 minutes. Leave them unset and the whole path is skipped.
 - Open CORS (`Any`/`Any`/`Any`) - built for trusted local/LAN use, not a public API.
 
 ## How it works
@@ -48,8 +47,6 @@ flowchart LR
     P -->|JSON| Client[WebSocket client]
     Client -->|"{type: input, text}"| WS
     WS -->|find tty via pgrep/lsof/ps, then osascript| TTY[iTerm2 / VS Code terminal]
-    Sched[5-min interval] -->|list_sessions| SB[supabase.rs]
-    SB -->|REST upsert, optional| DB[(Supabase claude_sessions)]
 ```
 
 Each JSONL line is one `user` or `assistant` turn. `parser::parse_line` maps it to at most one `SessionEvent`: todos and plain text come from `user` lines, thinking/text/tool_use/usage come from `assistant` lines. Input injection is one-way and best-effort - if no matching tty is found, or neither the iTerm2 nor the VS Code AppleScript path succeeds, the caller gets `{"ok": false}` back.
@@ -64,7 +61,6 @@ Each JSONL line is one `user` or `assistant` turn. `parser::parse_line` maps it 
 | CORS | tower-http |
 | Serialization | serde / serde_json |
 | Time formatting | chrono |
-| HTTP client (Supabase) | reqwest |
 | Config | dotenv + env vars |
 | Logging | tracing / tracing-subscriber |
 | Errors | anyhow |
@@ -75,7 +71,7 @@ Each JSONL line is one `user` or `assistant` turn. `parser::parse_line` maps it 
 ```bash
 git clone https://github.com/bunlongheng/claude-live.git
 cd claude-live
-cp .env.example .env   # optional - all vars have defaults except Supabase
+cp .env.example .env   # optional - all vars have defaults
 cargo run --release
 ```
 
@@ -93,8 +89,6 @@ claude-live  http://0.0.0.0:7878
 |----------|---------|---------|
 | `PORT` | `7878` | Port the HTTP/WS server listens on |
 | `ACTIVE_THRESHOLD_SECS` | `600` | Sessions with no writes for longer than this are marked `active: false` |
-| `SUPABASE_URL` | unset | Enables the background sync task when set together with the key below |
-| `SUPABASE_SERVICE_KEY` | unset | Service-role key used for the Supabase upsert |
 | `RUST_LOG` | `claude_progress=info,tower_http=warn` | Standard `tracing` env filter |
 
 ## API reference
